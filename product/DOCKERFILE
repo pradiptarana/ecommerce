@@ -1,0 +1,21 @@
+# Start from the official Golang image
+FROM golang:1.19-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go module files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the application
+RUN go build -o product-service .
+
+# Expose the port for the Product Service
+EXPOSE 8082
+
+# Start the Product Service
+CMD ["./product-service"]

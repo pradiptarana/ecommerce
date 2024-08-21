@@ -1,0 +1,90 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    environment:
+      USER_SERVICE_URL: http://user-service:8081
+      PRODUCT_SERVICE_URL: http://product-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
+      WAREHOUSE_SERVICE_URL: http://warehouse-service:8084
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - product-service
+      - order-service
+      - user-service
+      - warehouse-service
+
+  product-service:
+    build:
+      context: ./product-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: userpassword
+      DB_NAME: ecommerce
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql
+
+  order-service:
+    build:
+      context: ./order-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: userpassword
+      DB_NAME: ecommerce
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mysql
+
+  user-service:
+    build:
+      context: ./user-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: userpassword
+      DB_NAME: ecommerce
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mysql
+
+  warehouse-service:
+    build:
+      context: ./warehouse-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: userpassword
+      DB_NAME: ecommerce
+    ports:
+      - "8085:8085"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
